@@ -16,3 +16,9 @@ cc_binary(
     srcs = ["demo.cc"],
     deps = [":kdtree-lib"],
 )
+
+cc_test(
+    name = "kdtree-test",
+    srcs = ["test_kdtree.cc"],
+    deps = [":kdtree-lib"],
+)

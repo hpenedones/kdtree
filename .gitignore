@@ -28,3 +28,4 @@
 *.out
 *.app
 kdtree-demo
+_codeql_detected_source_root
