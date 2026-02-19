@@ -17,7 +17,8 @@ static int g_failures = 0;
 
 #define CHECK(expr)                                                       \
     do {                                                                  \
-        if (!(expr)) {                                                    \
+        auto _val = (expr);                                               \
+        if (!_val) {                                                      \
             std::cerr << "FAIL [" << __func__ << "] " << #expr << "\n"; \
             ++g_failures;                                                 \
         }                                                                 \
@@ -25,9 +26,11 @@ static int g_failures = 0;
 
 #define CHECK_EQ(a, b)                                                    \
     do {                                                                  \
-        if ((a) != (b)) {                                                 \
+        auto _a = (a);                                                    \
+        auto _b = (b);                                                    \
+        if (_a != _b) {                                                   \
             std::cerr << "FAIL [" << __func__ << "] " << #a << " == "   \
-                      << #b << "  (" << (a) << " != " << (b) << ")\n";  \
+                      << #b << "  (" << _a << " != " << _b << ")\n";    \
             ++g_failures;                                                 \
         }                                                                 \
     } while (0)
