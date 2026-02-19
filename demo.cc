@@ -77,10 +77,10 @@ int main() {
     std::cout << NUM_QUERIES << " range queries (radius=" << QUERY_RADIUS << "):\n";
     std::cout << "  K-d tree   : " << kd_ms << " ms total  ("
               << kd_ms / NUM_QUERIES << " ms/query, "
-              << kd_total / NUM_QUERIES << " neighbors avg)\n";
+              << static_cast<double>(kd_total) / NUM_QUERIES << " neighbors avg)\n";
     std::cout << "  Brute force: " << bf_ms << " ms total  ("
               << bf_ms / NUM_QUERIES << " ms/query, "
-              << bf_total / NUM_QUERIES << " neighbors avg)\n";
+              << static_cast<double>(bf_total) / NUM_QUERIES << " neighbors avg)\n";
 
     if (kd_total == bf_total)
         std::cout << "Results match ✓\n";
