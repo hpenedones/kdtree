@@ -53,8 +53,9 @@ void Kdtree::insert(const Point & new_point)
 bool Kdtree::intersects_line(const Point & point, float radius) const
 {
     float value = (split_axis == 0) ? point.x() : point.y();
+    float split = split_value();
 
-    return (value - radius <= split_value() && split_value() <= value + radius);
+    return (value - radius <= split && split <= value + radius);
 }
 
 bool Kdtree::is_neighbor(const Point & point, float radius) const
