@@ -27,15 +27,13 @@ Euclidean distance from the query is at most `radius`.
 #include "point.h"
 
 // Build the tree
-Kdtree* tree = new Kdtree(Point(1, 0.3f, 0.5f));
-tree->insert(Point(2, -0.3f, 0.5f));
-tree->insert(Point(3,  0.9f, 1.5f));
+Kdtree tree(Point(1, 0.3f, 0.5f));
+tree.insert(Point(2, -0.3f, 0.5f));
+tree.insert(Point(3,  0.9f, 1.5f));
 
 // Query: find all points within radius 1.0 of (1.3, 0.5)
 Point query(10, 1.3f, 0.5f);
-std::list<Point> neighbours = tree->get_nearby_points(query, 1.0f);
-
-delete tree;
+std::list<Point> neighbours = tree.get_nearby_points(query, 1.0f);
 ```
 
 ## Running the demo
