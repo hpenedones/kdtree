@@ -9,39 +9,47 @@
 
 namespace py = pybind11;
 
-// Wrapper functions to handle Python interface
-template <int N>
-Point<N> make_point(int id, const std::array<float, N>& coords) {
-    return Point<N>(id, coords);
-}
-
-template <int N>
-Kdtree<N>* make_kdtree(const Point<N>& point, int split_axis = 0) {
-    return new Kdtree<N>(point, split_axis);
-}
-
 // Bind Point class for specific dimensions
 template <int N>
 void bind_point(py::module& m, const std::string& name) {
-    py::class_<Point<N>>(m, name.c_str())
-        .def(py::init<int, const std::array<float, N>&>(), py::arg("id"), py::arg("coords"))
-        .def("id", &Point<N>::id)
-        .def("__getitem__", [](const Point<N>& p, int axis) { return p[axis]; })
-        .def("x", &Point<N>::x)
-        .def("y", &Point<N>::y)
-        .def("z", &Point<N>::z)
-        .def_static("dimensions", &Point<N>::dimensions)
-        .def("__repr__", [](const Point<N>& p) {
-            std::string repr =
-                "Point" + std::to_string(N) + "D(id=" + std::to_string(p.id()) + ", coords=[";
-            for (int i = 0; i < N; i++) {
-                if (i > 0)
-                    repr += ", ";
-                repr += std::to_string(p[i]);
-            }
-            repr += "])";
-            return repr;
-        });
+    auto point_class =
+        py::class_<Point<N>>(m, name.c_str())
+            .def(py::init<int, const std::array<float, N>&>(), py::arg("id"), py::arg("coords"))
+            .def("id", &Point<N>::id)
+            .def("__getitem__",
+                 [](const Point<N>& p, int axis) {
+                     int idx = axis;
+                     if (idx < 0) {
+                         idx += N;  // Support Python-style negative indices
+                     }
+                     if (idx < 0 || idx >= N) {
+                         throw py::index_error("Point index out of range");
+                     }
+                     return p[idx];
+                 })
+            .def_static("dimensions", &Point<N>::dimensions)
+            .def("__repr__", [](const Point<N>& p) {
+                std::string repr =
+                    "Point" + std::to_string(N) + "D(id=" + std::to_string(p.id()) + ", coords=[";
+                for (int i = 0; i < N; i++) {
+                    if (i > 0)
+                        repr += ", ";
+                    repr += std::to_string(p[i]);
+                }
+                repr += "])";
+                return repr;
+            });
+
+    // Bind dimension-specific accessors only when valid
+    if (N >= 1) {
+        point_class.def("x", &Point<N>::x);
+    }
+    if (N >= 2) {
+        point_class.def("y", &Point<N>::y);
+    }
+    if (N >= 3) {
+        point_class.def("z", &Point<N>::z);
+    }
 }
 
 // Bind Kdtree class for specific dimensions

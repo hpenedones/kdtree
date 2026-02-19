@@ -10,35 +10,33 @@ if ! command -v clang-format &> /dev/null; then
     exit 1
 fi
 
-# Get list of staged C++ files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(cc|h|cpp|hpp)$')
-
-if [ -z "$STAGED_FILES" ]; then
-    # No C++ files staged, nothing to check
-    exit 0
-fi
-
 echo "Running clang-format on staged C++ files..."
 
 # Check if any files need formatting
 NEEDS_FORMAT=0
-for FILE in $STAGED_FILES; do
-    if [ -f "$FILE" ]; then
-        # Run clang-format and check if file would be modified
-        clang-format --dry-run --Werror "$FILE" 2>&1
-        if [ $? -ne 0 ]; then
+FILES_TO_FORMAT=()
+
+# Use NUL-delimited file list to handle filenames with spaces/special characters
+while IFS= read -r -d '' FILE; do
+    # Ensure there is a staged blob for this file
+    if git cat-file -e :"$FILE" 2>/dev/null; then
+        # Run clang-format on the staged contents and check if it would report issues
+        if ! git show :"$FILE" | clang-format --dry-run --Werror --assume-filename="$FILE" 2>&1; then
             echo "Formatting issues found in: $FILE"
             NEEDS_FORMAT=1
+            FILES_TO_FORMAT+=("$FILE")
         fi
     fi
-done
+done < <(git diff --cached --name-only --diff-filter=ACMR -z | grep -zE '\.(cc|h|cpp|hpp)$')
 
 if [ $NEEDS_FORMAT -eq 1 ]; then
     echo ""
     echo "Code formatting issues detected!"
     echo "Please run the following command to fix formatting:"
     echo ""
-    echo "  clang-format -i" $STAGED_FILES
+    echo -n "  clang-format -i"
+    printf " '%s'" "${FILES_TO_FORMAT[@]}"
+    echo ""
     echo ""
     echo "Then stage the changes and commit again."
     exit 1
