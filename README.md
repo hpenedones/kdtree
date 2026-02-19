@@ -139,3 +139,64 @@ This is a header-only library (templates require definition in headers). The imp
 - Generic axis cycling: `(split_axis + 1) % N`
 - N-dimensional Euclidean distance in range queries
 - Efficient pruning based on hyperplane intersections
+
+## Python Wrapper
+
+A Python wrapper is available using pybind11. It supports 2D, 3D, and 4D k-d trees.
+
+### Building the Python Extension
+
+```bash
+# Install pybind11
+pip install pybind11
+
+# Build and install the extension
+python setup.py install
+```
+
+### Python Usage
+
+```python
+import pykdtree
+
+# Create 2D points
+p1 = pykdtree.Point2D(1, [0.3, 0.5])
+p2 = pykdtree.Point2D(2, [-0.3, 0.5])
+p3 = pykdtree.Point2D(3, [0.9, 1.5])
+
+# Build tree
+tree = pykdtree.Kdtree2D(p1)
+tree.insert(p2)
+tree.insert(p3)
+
+# Query: find all points within radius 1.0 of (1.3, 0.5)
+query = pykdtree.Point2D(10, [1.3, 0.5])
+neighbors = tree.get_nearby_points(query, 1.0)
+
+print(f"Found {len(neighbors)} neighbors")
+for neighbor in neighbors:
+    print(f"  Point ID: {neighbor.id()}, coords: [{neighbor.x()}, {neighbor.y()}]")
+```
+
+The wrapper also supports `Point3D`/`Kdtree3D` and `Point4D`/`Kdtree4D` for 3D and 4D spaces.
+
+### Running the Python Demo
+
+```bash
+python demo.py
+```
+
+## Code Formatting
+
+This repository uses clang-format for C++ code formatting. To set up the pre-commit hook:
+
+```bash
+# Install the git hook
+./install-hooks.sh
+```
+
+Once installed, the pre-commit hook will automatically check that all C++ files are properly formatted before allowing a commit. If formatting issues are found, run:
+
+```bash
+clang-format -i *.cc *.h
+```

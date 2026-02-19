@@ -21,33 +21,32 @@ using Kdtree3D = Kdtree<3>;
 
 static int g_failures = 0;
 
-#define CHECK(expr)                                                       \
-    do {                                                                  \
-        auto _val = (expr);                                               \
-        if (!_val) {                                                      \
+#define CHECK(expr)                                                     \
+    do {                                                                \
+        auto _val = (expr);                                             \
+        if (!_val) {                                                    \
             std::cerr << "FAIL [" << __func__ << "] " << #expr << "\n"; \
-            ++g_failures;                                                 \
-        }                                                                 \
+            ++g_failures;                                               \
+        }                                                               \
     } while (0)
 
-#define CHECK_EQ(a, b)                                                    \
-    do {                                                                  \
-        auto _a = (a);                                                    \
-        auto _b = (b);                                                    \
-        if (_a != _b) {                                                   \
-            std::cerr << "FAIL [" << __func__ << "] " << #a << " == "   \
-                      << #b << "  (" << _a << " != " << _b << ")\n";    \
-            ++g_failures;                                                 \
-        }                                                                 \
+#define CHECK_EQ(a, b)                                                                     \
+    do {                                                                                   \
+        auto _a = (a);                                                                     \
+        auto _b = (b);                                                                     \
+        if (_a != _b) {                                                                    \
+            std::cerr << "FAIL [" << __func__ << "] " << #a << " == " << #b << "  (" << _a \
+                      << " != " << _b << ")\n";                                            \
+            ++g_failures;                                                                  \
+        }                                                                                  \
     } while (0)
 
 // ---- Generic templated helpers ----
 
-template<int N>
-static std::vector<int> brute_ids(const std::vector<Point<N>> &pts,
-                                   const Point<N> &q, float r) {
+template <int N>
+static std::vector<int> brute_ids(const std::vector<Point<N>>& pts, const Point<N>& q, float r) {
     std::vector<int> ids;
-    for (const auto &p : pts) {
+    for (const auto& p : pts) {
         float squared_dist = 0.0f;
         for (int i = 0; i < N; ++i) {
             float diff = p[i] - q[i];
@@ -60,15 +59,14 @@ static std::vector<int> brute_ids(const std::vector<Point<N>> &pts,
     return ids;
 }
 
-template<int N>
-static std::vector<int> kdtree_ids(const std::vector<Point<N>> &pts,
-                                    const Point<N> &q, float r) {
+template <int N>
+static std::vector<int> kdtree_ids(const std::vector<Point<N>>& pts, const Point<N>& q, float r) {
     Kdtree<N> tree(pts[0]);
     for (size_t i = 1; i < pts.size(); ++i)
         tree.insert(pts[i]);
     std::list<Point<N>> result = tree.get_nearby_points(q, r);
     std::vector<int> ids;
-    for (const auto &p : result)
+    for (const auto& p : result)
         ids.push_back(p.id());
     std::sort(ids.begin(), ids.end());
     return ids;
@@ -101,8 +99,10 @@ static void test_point_exactly_on_boundary_included() {
 
 static void test_large_radius_returns_all() {
     std::vector<Point2D> pts = {
-        Point2D(1, {{0.0f, 0.0f}}), Point2D(2, {{5.0f, 5.0f}}),
-        Point2D(3, {{-5.0f, 3.0f}}), Point2D(4, {{2.0f, -4.0f}}),
+        Point2D(1, {{0.0f, 0.0f}}),
+        Point2D(2, {{5.0f, 5.0f}}),
+        Point2D(3, {{-5.0f, 3.0f}}),
+        Point2D(4, {{2.0f, -4.0f}}),
     };
     auto kd = kdtree_ids<2>(pts, Point2D(99, {{0.0f, 0.0f}}), 100.0f);
     CHECK_EQ((int)kd.size(), 4);
@@ -110,7 +110,9 @@ static void test_large_radius_returns_all() {
 
 static void test_zero_radius_returns_only_coincident() {
     std::vector<Point2D> pts = {
-        Point2D(1, {{0.0f, 0.0f}}), Point2D(2, {{1.0f, 0.0f}}), Point2D(3, {{0.0f, 1.0f}}),
+        Point2D(1, {{0.0f, 0.0f}}),
+        Point2D(2, {{1.0f, 0.0f}}),
+        Point2D(3, {{0.0f, 1.0f}}),
     };
     // Only pt 1 is at the query location.
     auto kd = kdtree_ids<2>(pts, Point2D(99, {{0.0f, 0.0f}}), 0.0f);
@@ -120,9 +122,8 @@ static void test_zero_radius_returns_only_coincident() {
 
 static void test_matches_brute_force_small() {
     std::vector<Point2D> pts = {
-        Point2D(1, {{0.3f, 0.5f}}),  Point2D(2, {{-0.3f, 0.5f}}),
-        Point2D(3, {{0.9f, 1.5f}}),  Point2D(4, {{1.7f, 1.5f}}),
-        Point2D(5, {{3.3f, 0.95f}}), Point2D(6, {{0.03f, -0.5f}}),
+        Point2D(1, {{0.3f, 0.5f}}), Point2D(2, {{-0.3f, 0.5f}}), Point2D(3, {{0.9f, 1.5f}}),
+        Point2D(4, {{1.7f, 1.5f}}), Point2D(5, {{3.3f, 0.95f}}), Point2D(6, {{0.03f, -0.5f}}),
     };
     Point2D query(10, {{1.3f, 0.5f}});
     float radius = 1.1f;
@@ -152,8 +153,8 @@ static void test_matches_brute_force_random_large() {
         auto kd = kdtree_ids<2>(pts, query, radius);
         if (kd != bf) {
             std::cerr << "FAIL [test_matches_brute_force_random_large] "
-                         "query #" << q << " kd=" << kd.size()
-                      << " bf=" << bf.size() << "\n";
+                         "query #"
+                      << q << " kd=" << kd.size() << " bf=" << bf.size() << "\n";
             ++g_failures;
         }
     }
@@ -185,10 +186,8 @@ static void test_3d_point_on_boundary() {
 
 static void test_3d_matches_brute_force_small() {
     std::vector<Point3D> pts = {
-        Point3D(1, {{0.0f, 0.0f, 0.0f}}),
-        Point3D(2, {{1.0f, 0.0f, 0.0f}}),
-        Point3D(3, {{0.0f, 1.0f, 0.0f}}),
-        Point3D(4, {{0.0f, 0.0f, 1.0f}}),
+        Point3D(1, {{0.0f, 0.0f, 0.0f}}), Point3D(2, {{1.0f, 0.0f, 0.0f}}),
+        Point3D(3, {{0.0f, 1.0f, 0.0f}}), Point3D(4, {{0.0f, 0.0f, 1.0f}}),
         Point3D(5, {{5.0f, 5.0f, 5.0f}}),
     };
     Point3D query(10, {{0.5f, 0.5f, 0.5f}});
@@ -219,8 +218,8 @@ static void test_3d_matches_brute_force_random() {
         auto kd = kdtree_ids<3>(pts, query, radius);
         if (kd != bf) {
             std::cerr << "FAIL [test_3d_matches_brute_force_random] "
-                         "query #" << q << " kd=" << kd.size()
-                      << " bf=" << bf.size() << "\n";
+                         "query #"
+                      << q << " kd=" << kd.size() << " bf=" << bf.size() << "\n";
             ++g_failures;
         }
     }

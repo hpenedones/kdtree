@@ -5,13 +5,12 @@
 
 #include "point.h"
 
-template<int N>
+template <int N>
 class Kdtree {
     static_assert(N > 0, "Kdtree dimensionality must be positive");
 
-public:
-
-    Kdtree(const Point<N> & point, int split_axis = 0);
+   public:
+    Kdtree(const Point<N>& point, int split_axis = 0);
     ~Kdtree();
 
     // Delete copy and move operations to prevent double-deletion
@@ -20,18 +19,17 @@ public:
     Kdtree(Kdtree&&) = delete;
     Kdtree& operator=(Kdtree&&) = delete;
 
-    void insert(const Point<N> & point);
-    std::list<Point<N>> get_nearby_points(const Point<N> & point, float radius) const;
+    void insert(const Point<N>& point);
+    std::list<Point<N>> get_nearby_points(const Point<N>& point, float radius) const;
 
-private:
-
-    bool intersects_line(const Point<N> & point, float radius) const;
-    bool is_neighbor(const Point<N> & point, float radius) const;
-    bool falls_on_left_child(const Point<N> & point) const;
+   private:
+    bool intersects_line(const Point<N>& point, float radius) const;
+    bool is_neighbor(const Point<N>& point, float radius) const;
+    bool falls_on_left_child(const Point<N>& point) const;
     float split_value() const;
 
-    Kdtree<N> * left;
-    Kdtree<N> * right;
+    Kdtree<N>* left;
+    Kdtree<N>* right;
 
     const Point<N> split_point;
     int split_axis;
@@ -39,46 +37,37 @@ private:
 
 // Template implementation must be in header
 
-template<int N>
-Kdtree<N>::Kdtree(const Point<N>& point, int axis):
-    left(nullptr), right(nullptr), split_point(point), split_axis(((axis % N) + N) % N)
-{
+template <int N>
+Kdtree<N>::Kdtree(const Point<N>& point, int axis)
+    : left(nullptr), right(nullptr), split_point(point), split_axis(((axis % N) + N) % N) {}
 
+template <int N>
+Kdtree<N>::~Kdtree() {
+    if (left)
+        delete left;
+    if (right)
+        delete right;
 }
 
-template<int N>
-Kdtree<N>::~Kdtree()
-{
-    if (left)  delete left;
-    if (right) delete right;
-}
-
-template<int N>
-float Kdtree<N>::split_value() const
-{
+template <int N>
+float Kdtree<N>::split_value() const {
     return split_point[split_axis];
 }
 
-template<int N>
-void Kdtree<N>::insert(const Point<N> & new_point)
-{
+template <int N>
+void Kdtree<N>::insert(const Point<N>& new_point) {
     // new split axis for the subtree - cycle through all N dimensions
     int new_split_axis = (split_axis + 1) % N;
 
     // deciding on left or right subtree
-    if ( falls_on_left_child(new_point))
-    {
-        if (!left)
-        {
+    if (falls_on_left_child(new_point)) {
+        if (!left) {
             left = new Kdtree<N>(new_point, new_split_axis);
             return;
         }
         left->insert(new_point);
-    }
-    else
-    {
-        if (!right)
-        {
+    } else {
+        if (!right) {
             right = new Kdtree<N>(new_point, new_split_axis);
             return;
         }
@@ -86,22 +75,19 @@ void Kdtree<N>::insert(const Point<N> & new_point)
     }
 }
 
-template<int N>
-bool Kdtree<N>::intersects_line(const Point<N> & point, float radius) const
-{
+template <int N>
+bool Kdtree<N>::intersects_line(const Point<N>& point, float radius) const {
     float value = point[split_axis];
     float split = split_value();
 
     return (value - radius <= split && split <= value + radius);
 }
 
-template<int N>
-bool Kdtree<N>::is_neighbor(const Point<N> & point, float radius) const
-{
+template <int N>
+bool Kdtree<N>::is_neighbor(const Point<N>& point, float radius) const {
     // N-dimensional Euclidean distance
     float squared_distance = 0.0f;
-    for (int i = 0; i < N; ++i)
-    {
+    for (int i = 0; i < N; ++i) {
         float diff = split_point[i] - point[i];
         squared_distance += diff * diff;
     }
@@ -109,15 +95,13 @@ bool Kdtree<N>::is_neighbor(const Point<N> & point, float radius) const
     return (squared_distance <= radius * radius);
 }
 
-template<int N>
-bool Kdtree<N>::falls_on_left_child(const Point<N> & point) const
-{
+template <int N>
+bool Kdtree<N>::falls_on_left_child(const Point<N>& point) const {
     return point[split_axis] < split_value();
 }
 
-template<int N>
-std::list<Point<N>> Kdtree<N>::get_nearby_points(const Point<N> & point, float radius) const
-{
+template <int N>
+std::list<Point<N>> Kdtree<N>::get_nearby_points(const Point<N>& point, float radius) const {
     std::list<Point<N>> result;
 
     if (is_neighbor(point, radius))
@@ -126,15 +110,13 @@ std::list<Point<N>> Kdtree<N>::get_nearby_points(const Point<N> & point, float r
     // If there is a left child, we have to visit it recursively if the test sphere
     // falls at least partially on the left side of the decision hyperplane.
     // This is an opportunity for pruning the search!
-    if (left && (intersects_line(point, radius) || falls_on_left_child(point) ) )
-    {
+    if (left && (intersects_line(point, radius) || falls_on_left_child(point))) {
         std::list<Point<N>> left_result = left->get_nearby_points(point, radius);
         result.insert(result.end(), left_result.begin(), left_result.end());
     }
 
     // Same thing for the right side.
-    if (right && (intersects_line(point, radius) || !falls_on_left_child(point)))
-    {
+    if (right && (intersects_line(point, radius) || !falls_on_left_child(point))) {
         std::list<Point<N>> right_result = right->get_nearby_points(point, radius);
         result.insert(result.end(), right_result.begin(), right_result.end());
     }
@@ -142,4 +124,4 @@ std::list<Point<N>> Kdtree<N>::get_nearby_points(const Point<N> & point, float r
     return result;
 }
 
-#endif // KDTREE_H
+#endif  // KDTREE_H
