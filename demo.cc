@@ -8,7 +8,7 @@
 
 using namespace std;
 
-int main(int argc, char* argv[])
+int main()
 {
 
   std::vector<Point> points {
@@ -23,12 +23,13 @@ int main(int argc, char* argv[])
 
   Kdtree * kdtree = new Kdtree(points[0]);
 
-  for (int i = 1; i < points.size(); i++ ) {
+  for (size_t i = 1; i < points.size(); i++ ) {
     kdtree->insert(points[i]);
   }
 
   Point query_point = Point(10, 1.3, 0.5);
-  float radius = 0.9;
+  // radius=1.1 captures the three nearest points to the query (distances 1.0 and ~1.08)
+  float radius = 1.1f;
 
   auto neighbors = kdtree->get_nearby_points(query_point, radius);
 

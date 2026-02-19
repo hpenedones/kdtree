@@ -3,7 +3,7 @@
 
 
 Kdtree::Kdtree(const Point& point, int axis):
-    left(NULL), right(NULL), split_point(point), split_axis(axis)
+    left(nullptr), right(nullptr), split_point(point), split_axis(axis)
 {
 
 }
@@ -14,7 +14,7 @@ Kdtree::~Kdtree()
     if (right) delete right;
 }
 
-int Kdtree::split_value() const
+float Kdtree::split_value() const
 {
     if (split_axis == 0) return split_point.x();
 
@@ -48,23 +48,19 @@ void Kdtree::insert(const Point & new_point)
     }
 }
 
-// check wether a given circle (defined by a point and a radius) intersects
+// check whether a given circle (defined by a point and a radius) intersects
 // the line defined by this kdtree node (defined by its point and split_axis)
-bool Kdtree::intersects_line(const Point & point, int radius) const
+bool Kdtree::intersects_line(const Point & point, float radius) const
 {
-    int value = (split_axis == 0) ? point.x() : point.y();
+    float value = (split_axis == 0) ? point.x() : point.y();
 
-
-    if (value - radius <= split_value() && split_value() <= value + radius)
-        return true;
-
-    return false;
+    return (value - radius <= split_value() && split_value() <= value + radius);
 }
 
-bool Kdtree::is_neighbor(const Point & point, int radius) const
+bool Kdtree::is_neighbor(const Point & point, float radius) const
 {
-    int xdif = split_point.x() - point.x();
-    int ydif = split_point.y() - point.y();
+    float xdif = split_point.x() - point.x();
+    float ydif = split_point.y() - point.y();
 
     // using Euclidean distance
     return (xdif * xdif + ydif * ydif <= radius * radius);
@@ -75,16 +71,13 @@ bool Kdtree::is_neighbor(const Point & point, int radius) const
 
 bool Kdtree::falls_on_left_child(const Point & point) const
 {
-    int value = (split_axis == 0) ? point.x() : point.y();
+    float value = (split_axis == 0) ? point.x() : point.y();
 
-    if (value < split_value())
-        return true;
-
-    return false;
+    return value < split_value();
 }
 
 
-std::list<Point> Kdtree::get_nearby_points(const Point & point, int radius) const
+std::list<Point> Kdtree::get_nearby_points(const Point & point, float radius) const
 {
     std::list<Point> result;
 
