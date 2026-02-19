@@ -29,3 +29,5 @@
 *.app
 kdtree-demo
 _codeql_detected_source_root
+test_kdtree
+kdtree-demo
