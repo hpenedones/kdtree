@@ -32,3 +32,14 @@ kdtree-test
 _codeql_detected_source_root
 test_kdtree
 kdtree-demo
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+.eggs/
+.pytest_cache/
