@@ -1,13 +1,11 @@
 // Unit tests for Kdtree.
-// Each test function returns true on success and false (with a message) on failure.
+// Each test function increments g_failures on any assertion failure.
 // The main() exits with a non-zero status if any test fails.
 
 #include <algorithm>
-#include <cmath>
 #include <iostream>
 #include <list>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "kdtree.h"
