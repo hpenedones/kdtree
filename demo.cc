@@ -8,10 +8,14 @@
 #include "kdtree.h"
 #include "point.h"
 
+// Type aliases for 2D
+using Point2D = Point<2>;
+using Kdtree2D = Kdtree<2>;
+
 // Brute-force reference implementation for comparison.
-static std::vector<Point> brute_force_nearby(const std::vector<Point> &points,
-                                              const Point &query, float radius) {
-    std::vector<Point> result;
+static std::vector<Point2D> brute_force_nearby(const std::vector<Point2D> &points,
+                                              const Point2D &query, float radius) {
+    std::vector<Point2D> result;
     for (const auto &p : points) {
         float dx = p.x() - query.x();
         float dy = p.y() - query.y();
@@ -30,14 +34,14 @@ int main() {
     std::mt19937 rng(42);
     std::uniform_real_distribution<float> dist(-COORD_RANGE, COORD_RANGE);
 
-    std::vector<Point> points;
+    std::vector<Point2D> points;
     points.reserve(N);
     for (int i = 0; i < N; ++i)
-        points.emplace_back(i, dist(rng), dist(rng));
+        points.emplace_back(i, std::array<float, 2>{{dist(rng), dist(rng)}});
 
     // ---- Build the k-d tree ----
     auto build_start = std::chrono::high_resolution_clock::now();
-    Kdtree *kdtree = new Kdtree(points[0]);
+    Kdtree2D *kdtree = new Kdtree2D(points[0]);
     for (int i = 1; i < N; ++i)
         kdtree->insert(points[i]);
     auto build_end = std::chrono::high_resolution_clock::now();
@@ -49,10 +53,10 @@ int main() {
 
     // Generate query points.
     const int NUM_QUERIES = 1000;
-    std::vector<Point> queries;
+    std::vector<Point2D> queries;
     queries.reserve(NUM_QUERIES);
     for (int i = 0; i < NUM_QUERIES; ++i)
-        queries.emplace_back(N + i, dist(rng), dist(rng));
+        queries.emplace_back(N + i, std::array<float, 2>{{dist(rng), dist(rng)}});
 
     // ---- Queries: k-d tree ----
     size_t kd_total = 0;
