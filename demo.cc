@@ -28,7 +28,7 @@ int main()
   }
 
   Point query_point = Point(10, 1.3, 0.5);
-  // radius=1.1 captures the three nearest points to the query (distances 1.0 and ~1.08)
+  // radius = 1.1 includes three points within distance <= 1.1 of the query (e.g., ~1.0 and ~1.08 away)
   float radius = 1.1f;
 
   auto neighbors = kdtree->get_nearby_points(query_point, radius);
