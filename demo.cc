@@ -88,8 +88,13 @@ int main() {
         std::cout << "Results MISMATCH ✗ (kdtree=" << kd_total
                   << " brute=" << bf_total << ")\n";
 
-    if (bf_ms > 0.0)
-        std::cout << "Speedup: " << (bf_ms / kd_ms) << "x\n";
+    if (bf_ms > 0.0) {
+        if (kd_ms > 0.0) {
+            std::cout << "Speedup: " << (bf_ms / kd_ms) << "x\n";
+        } else {
+            std::cout << "Speedup: >1000x (too fast to measure accurately)\n";
+        }
+    }
 
     delete kdtree;
     return 0;
