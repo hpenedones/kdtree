@@ -69,9 +69,9 @@ Points support both generic indexing and named accessors:
 Point3D p(1, {{1.0f, 2.0f, 3.0f}});
 
 // Generic indexing (works for any dimension)
-float x = p[0];
-float y = p[1];
-float z = p[2];
+float x_coord = p[0];
+float y_coord = p[1];
+float z_coord = p[2];
 
 // Named accessors (for convenience)
 float x = p.x();  // First dimension
@@ -121,11 +121,16 @@ Tests include both 2D and 3D test cases to verify the generalization works corre
 ## Performance
 
 K-d trees work efficiently for low to moderate dimensionality:
-- **2D-3D**: Excellent performance, significant speedup over brute force
-- **4D-10D**: Good performance, still much faster than linear search
-- **10D+**: Performance degrades due to the "curse of dimensionality"
 
-For very high-dimensional spaces (20+ dimensions), consider alternative data structures.
+| Dimension | Query Complexity | Practical Use |
+|-----------|------------------|---------------|
+| 2D | O(√n + k) | Excellent ✓ |
+| 3D | O(n^(2/3) + k) | Excellent ✓ |
+| 4D-5D | O(n^(3/4) + k) | Very good ✓ |
+| 6D-10D | O(n^0.85 + k) | Good ✓ |
+| 20D+ | O(n) | Poor (use other structures) |
+
+For very high-dimensional spaces (20+ dimensions), consider alternative data structures due to the "curse of dimensionality".
 
 ## Implementation Notes
 

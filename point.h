@@ -9,7 +9,7 @@ class Point
 
 public:
 
-   Point(int id, std::array<float, N> coords) :
+   Point(int id, const std::array<float, N>& coords) :
       m_id(id), m_coords(coords) {
 
    }

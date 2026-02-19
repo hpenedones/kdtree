@@ -7,11 +7,19 @@
 
 template<int N>
 class Kdtree {
+    static_assert(N > 0, "Kdtree dimensionality must be positive");
 
 public:
 
     Kdtree(const Point<N> & point, int split_axis = 0);
     ~Kdtree();
+
+    // Delete copy and move operations to prevent double-deletion
+    Kdtree(const Kdtree&) = delete;
+    Kdtree& operator=(const Kdtree&) = delete;
+    Kdtree(Kdtree&&) = delete;
+    Kdtree& operator=(Kdtree&&) = delete;
+
     void insert(const Point<N> & point);
     std::list<Point<N>> get_nearby_points(const Point<N> & point, float radius) const;
 
@@ -33,7 +41,7 @@ private:
 
 template<int N>
 Kdtree<N>::Kdtree(const Point<N>& point, int axis):
-    left(nullptr), right(nullptr), split_point(point), split_axis(axis)
+    left(nullptr), right(nullptr), split_point(point), split_axis(((axis % N) + N) % N)
 {
 
 }
